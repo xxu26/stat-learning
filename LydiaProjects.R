@@ -40,3 +40,35 @@ pred2 <- knn(train, test, cl=train_label, k=2)
 pred2
 pred3 <- knn(train, test, cl=train_label, k=3)
 pred3
+
+
+#Q8
+#8
+college <- read.csv("College.csv", header=T, stringsAsFactors = F)
+head(college)
+rownames(college)= college[, 1]
+fix(college)
+college=college[, -1]
+fix(college)
+summary(college)
+pairs(college[, 2:11])
+college <- mutate(college, Elite=ifelse(Top10perc >50, "Yes", "No"))
+par(mfrow=c(2, 2))
+
+library(ggplot2)
+hist(college$Apps)
+hist(college$perc.alumni, col=2)
+hist(college$S.F.Ratio, col=3, breaks=10)
+hist(college$Expend, breaks=100)
+
+library(reshape2)
+collegeLong<- melt(college)
+ggplot(collegeLong,aes(x = value)) + 
+        facet_wrap(~variable,scales = "free") +  
+        geom_histogram(fill="pink",bins = 10)
+
+library(corrplot)
+corPlotbase <- cor(college[, 3:19])
+par(mfrow=c(1, 1))
+corrplot(corPlotbase, method="circle")
+corrplot.mixed(corPlotbase)
