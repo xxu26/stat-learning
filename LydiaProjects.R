@@ -123,3 +123,210 @@ Boston[406, ]
 
 dim(filter(Boston, rm >7))
 dim(filter(Boston, rm >8))
+
+
+
+####Chapter 3 Linear Regression########################
+#Chapter 3 Linear Regression
+M <- matrix(runif(120), nrow=10)
+d <- dist(M)
+#install.packages("igraph")
+library(igraph)
+net <- graph.adjacency(as.matrix(d), mode="undirected", weighted=TRUE, diag=TRUE)
+plot.igraph(net)
+
+library(MASS)
+#install.packages("ISLR")
+library(ISLR)
+summary(lm(medv~log(rm), data=Boston))
+
+#Applied Lab #Q8
+summary(auto)
+fit <-lm(mpg ~ horsepower, data=auto)
+summary(fit)
+4.906/mean(auto$mpg, na.rm=T)
+summary(fit)$r.sq
+
+predict(fit, data.frame(horsepower=c(98)), interval="confidence")
+predict(fit, data.frame(horsepower=c(98)), interval="prediction")
+
+plot(auto$mpg~auto$horsepower)
+abline(fit)
+
+par(mfrow=c(2, 2))
+plot(fit)
+par(mfrow=c(1, 1))
+#Q9
+pairs(auto[, 1:7])
+t <- cor(subset(auto, select=-name))
+corrplot(t, method="number")
+fit2 <- lm(mpg ~ .-name, data=auto)
+summary(fit2)
+coef(fit2)["year"]
+plot(fit2)
+fit3 <- lm(mpg ~ cylinders * horsepower, data=auto)
+summary(fit3)
+fit4 <- lm(mpg~cylinders*displacement+weight, data=auto)#based on the coef
+summary(fit4)
+plot(fit4)
+fit5 <- lm(mpg ~ log(weight) + sqrt(horsepower)+
+                   acceleration+I(acceleration^2), data=auto)
+summary(fit5)
+plot(rstudent(fit5) ~ predict(fit5))
+
+fit6<-lm(log(mpg)~cylinders+displacement+horsepower
+         +weight+acceleration+year+origin,data=Auto)
+summary(fit6)
+par(mfrow=c(2,2)) 
+plot(fit6)
+plot(predict(fit6),rstudent(fit6))
+
+#Q10
+Carseats
+summary(Carseats)
+fitc <- lm(Sales ~ Price + Urban + US, data=Carseats)
+summary(fitc)
+# Sales = -0.05Price -0.02urbanYes + 1.2USYes + 13.4
+fitc2 <- lm(Sales ~ Price + US, data=Carseats)
+summary(fitc2) # Adjusted R-Squared not improve much
+
+confint(fitc2)#obtain the 95% confidence interval
+plot(predict(fitc2), rstudent(fitc2))
+plot(fitc2)
+
+#Q11
+set.seed(1)
+x=rnorm(100)
+y=2 * x + rnorm(100)
+fit11 <- lm(y ~ x + 0)
+summary(fit11)
+fit11.1 = lm(y~x)
+summary(fit11.1)
+
+#Q13
+set.seed(1)
+x=rnorm(100, mean=0, sd=1)
+x=rnorm(100)
+eps = rnorm(100, mean=0, sqrt(0.25))
+y = -1 + 0.5*x + eps
+plot(y~x)
+fit13 <- lm(y~x)
+summary(fit13)
+abline(fit13, lwd=3, col=2)
+abline(-1, 0.5, lwd=3, col=3)
+legend(-1, legend = c("model fit", "pop. regression"), col=2:3, lwd=3)
+fit13.2 <- lm(y ~ x + I(x^2))
+summary(fit13.2)
+confint(fit13)
+confint(fit13.2)
+
+#Q14 collinearity
+#a
+set.seed(1)
+x1=runif(100)
+x2=0.5*x1 + rnorm(100)/10
+y=2 + 2*x1 + 0.3*x2 + rnorm(100)
+#b
+cor(x1, x2)
+plot(x1, x2)
+#c
+fit14.2 = lm(y ~ x1 + x2)
+summary(fit14.2)
+confint(fit14.2)
+#4
+x1 = c(x1, 0.1)
+x2 = c(x2, 0.8)
+y = c(y, 6)
+lm.fit1 = lm(y~x1+x2)
+summary(lm.fit1)
+lm.fit2 = lm(y~x1)
+summary(lm.fit2)
+lm.fit3 = lm(y~x2)
+summary(lm.fit3)
+par(mfrow=c(2,2))
+plot(lm.fit1)
+par(mfrow=c(2,2))
+plot(lm.fit2)
+plot(lm.fit3)
+plot(predict(lm.fit1), rstudent(lm.fit1))
+plot(predict(lm.fit2), rstudent(lm.fit2))
+plot(predict(lm.fit3), rstudent(lm.fit3))
+
+#15
+library(MASS)
+summary(Boston)
+Boston$chas <- factor(Boston$chas, labels = c("N","Y"))
+summary(Boston)
+attach(Boston)
+lm.zn = lm(crim~zn)
+summary(lm.zn) # yes
+lm.indus = lm(crim~indus)
+summary(lm.indus) # yes
+lm.chas = lm(crim~chas) 
+summary(lm.chas) # no
+lm.nox = lm(crim~nox)
+summary(lm.nox) # yes
+lm.rm = lm(crim~rm)
+summary(lm.rm) # yes
+lm.age = lm(crim~age)
+summary(lm.age) # yes
+lm.dis = lm(crim~dis)
+summary(lm.dis) # yes
+lm.rad = lm(crim~rad)
+summary(lm.rad) # yes
+lm.tax = lm(crim~tax)
+summary(lm.tax) # yes
+lm.ptratio = lm(crim~ptratio)
+summary(lm.ptratio) # yes
+lm.black = lm(crim~black)
+summary(lm.black) # yes
+lm.lstat = lm(crim~lstat)
+summary(lm.lstat) # yes
+lm.medv = lm(crim~medv)
+summary(lm.medv) # yes
+
+lm.all = lm(crim~., data=Boston)
+summary(lm.all)
+par(mfrow=c(1, 1))
+x = c(coefficients(lm.zn)[2],
+      coefficients(lm.indus)[2],
+      coefficients(lm.chas)[2],
+      coefficients(lm.nox)[2],
+      coefficients(lm.rm)[2],
+      coefficients(lm.age)[2],
+      coefficients(lm.dis)[2],
+      coefficients(lm.rad)[2],
+      coefficients(lm.tax)[2],
+      coefficients(lm.ptratio)[2],
+      coefficients(lm.black)[2],
+      coefficients(lm.lstat)[2],
+      coefficients(lm.medv)[2])
+y = coefficients(lm.all)[2:14]
+plot(x, y)
+
+
+lm.zn = lm(crim~poly(zn,3))
+summary(lm.zn) # 1, 2
+lm.indus = lm(crim~poly(indus,3))
+summary(lm.indus) # 1, 2, 3
+# lm.chas = lm(crim~poly(chas,3)) : qualitative predictor
+lm.nox = lm(crim~poly(nox,3))
+summary(lm.nox) # 1, 2, 3
+lm.rm = lm(crim~poly(rm,3))
+summary(lm.rm) # 1, 2
+lm.age = lm(crim~poly(age,3))
+summary(lm.age) # 1, 2, 3
+lm.dis = lm(crim~poly(dis,3))
+summary(lm.dis) # 1, 2, 3
+lm.rad = lm(crim~poly(rad,3))
+summary(lm.rad) # 1, 2
+lm.tax = lm(crim~poly(tax,3))
+summary(lm.tax) # 1, 2
+lm.ptratio = lm(crim~poly(ptratio,3))
+summary(lm.ptratio) # 1, 2, 3
+lm.black = lm(crim~poly(black,3))
+summary(lm.black) # 1
+lm.lstat = lm(crim~poly(lstat,3))
+summary(lm.lstat) # 1, 2
+lm.medv = lm(crim~poly(medv,3))
+summary(lm.medv) # 1, 2, 3
